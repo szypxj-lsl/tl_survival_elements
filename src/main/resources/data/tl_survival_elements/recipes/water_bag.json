@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "L L",
+    " L "
+  ],
+  "key": {
+    "S": { "item": "minecraft:string" },
+    "L": { "item": "minecraft:leather" }
+  },
+  "result": {
+    "item": "tl_survival_elements:water_bag"
+  }
+}

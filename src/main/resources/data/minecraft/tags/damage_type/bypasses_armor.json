@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "tl_survival_elements:temperature_heat",
+    "tl_survival_elements:temperature_cold"
+  ]
+}

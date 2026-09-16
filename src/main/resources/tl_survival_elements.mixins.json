@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.szypxj.tlsurvivalelements.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "tl_survival_elements.refmap.json",
+  "mixins": [
+    "FoodDataMixin",
+    "PlayerInteractOnMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

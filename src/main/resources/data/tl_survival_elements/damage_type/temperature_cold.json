@@ -1,0 +1,5 @@
+{
+  "message_id": "temperature_cold",
+  "scaling": "never",
+  "exhaustion": 0.0
+}

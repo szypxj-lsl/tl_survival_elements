@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "tl_survival_elements:item/water_canteen"
+  }
+}
