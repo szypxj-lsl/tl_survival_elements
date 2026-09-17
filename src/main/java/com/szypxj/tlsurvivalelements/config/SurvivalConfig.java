@@ -51,6 +51,36 @@ public final class SurvivalConfig {
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> STAMINA_COST_OVERRIDES;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> ANESTHESIA_EFFECTS;
 
+    public static final ForgeConfigSpec.BooleanValue WILD_FEEDING_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue WILD_FORAGING_THRESHOLD;
+    public static final ForgeConfigSpec.DoubleValue WILD_RESERVE_CAPACITY_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue WILD_RESERVE_TRANSFER_PERCENT_PER_SECOND;
+    public static final ForgeConfigSpec.IntValue WILD_HERBIVORE_SCAN_MIN_SECONDS;
+    public static final ForgeConfigSpec.IntValue WILD_HERBIVORE_SCAN_MAX_SECONDS;
+    public static final ForgeConfigSpec.IntValue WILD_GROUND_FOOD_SCAN_MIN_SECONDS;
+    public static final ForgeConfigSpec.IntValue WILD_GROUND_FOOD_SCAN_MAX_SECONDS;
+    public static final ForgeConfigSpec.IntValue WILD_HUNT_SCAN_MIN_SECONDS;
+    public static final ForgeConfigSpec.IntValue WILD_HUNT_SCAN_MAX_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue WILD_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue WILD_PREDATION_SEARCH_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue WILD_CARNIVORE_HUNT_THRESHOLD;
+    public static final ForgeConfigSpec.DoubleValue WILD_OMNIVORE_HUNT_THRESHOLD;
+    public static final ForgeConfigSpec.BooleanValue WILD_DESTROY_PLANTS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> WILD_DIET_PROFILE_OVERRIDES;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> WILD_INEDIBLE_ENTITIES;
+    public static final ForgeConfigSpec.DoubleValue WILD_CARCASS_MIN_NUTRITION;
+    public static final ForgeConfigSpec.DoubleValue WILD_CARCASS_MAX_NUTRITION;
+    public static final ForgeConfigSpec.DoubleValue WILD_CARCASS_HEALTH_WEIGHT;
+    public static final ForgeConfigSpec.DoubleValue WILD_CARCASS_VOLUME_WEIGHT;
+    public static final ForgeConfigSpec.DoubleValue WILD_ENVIRONMENT_NUTRITION_PERCENT;
+    public static final ForgeConfigSpec.DoubleValue WILD_TAGGED_FOOD_FALLBACK_PERCENT;
+    public static final ForgeConfigSpec.DoubleValue WILD_CARNIVORE_NUTRITION_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue WILD_HERBIVORE_NUTRITION_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue WILD_SCAVENGER_NUTRITION_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue WILD_OMNIVORE_NUTRITION_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue STARVATION_DAMAGE_MAX_HEALTH_PERCENT_PER_SECOND;
+    public static final ForgeConfigSpec.DoubleValue DEHYDRATION_DAMAGE_MAX_HEALTH_PERCENT_PER_SECOND;
+
     public static final ForgeConfigSpec.BooleanValue TEMPERATURE_ENABLED;
     public static final ForgeConfigSpec.DoubleValue BASE_MINIMUM_TEMPERATURE;
     public static final ForgeConfigSpec.DoubleValue BASE_MAXIMUM_TEMPERATURE;
@@ -198,6 +228,41 @@ public final class SurvivalConfig {
         BUILTIN_HYDRATION_RULES = builder.defineListAllowEmpty("builtinFoodDrinkRules", DEFAULT_BUILTIN_HYDRATION_RULES, SurvivalConfig::isRule);
         builder.pop();
 
+        builder.push("wildFeeding");
+        WILD_FEEDING_ENABLED = builder.define("enabled", true);
+        WILD_FORAGING_THRESHOLD = builder.defineInRange("foragingThreshold", 0.70D, 0.0D, 1.0D);
+        WILD_RESERVE_CAPACITY_MULTIPLIER = builder.defineInRange("reserveCapacityMultiplier", 1.0D, 0.0D, 100.0D);
+        WILD_RESERVE_TRANSFER_PERCENT_PER_SECOND = builder.defineInRange("reserveTransferPercentPerSecond", 0.05D, 0.0D, 1.0D);
+        WILD_HERBIVORE_SCAN_MIN_SECONDS = builder.defineInRange("herbivoreScanMinSeconds", 10, 1, 3600);
+        WILD_HERBIVORE_SCAN_MAX_SECONDS = builder.defineInRange("herbivoreScanMaxSeconds", 30, 1, 3600);
+        WILD_GROUND_FOOD_SCAN_MIN_SECONDS = builder.defineInRange("groundFoodScanMinSeconds", 5, 1, 3600);
+        WILD_GROUND_FOOD_SCAN_MAX_SECONDS = builder.defineInRange("groundFoodScanMaxSeconds", 15, 1, 3600);
+        WILD_HUNT_SCAN_MIN_SECONDS = builder.defineInRange("huntScanMinSeconds", 5, 1, 3600);
+        WILD_HUNT_SCAN_MAX_SECONDS = builder.defineInRange("huntScanMaxSeconds", 15, 1, 3600);
+        WILD_SEARCH_RADIUS = builder.defineInRange("searchRadius", 8.0D, 1.0D, 64.0D);
+        WILD_PREDATION_SEARCH_RADIUS = builder.defineInRange("predationSearchRadius", 16.0D, 1.0D, 128.0D);
+        WILD_CARNIVORE_HUNT_THRESHOLD = builder.defineInRange("carnivoreHuntThreshold", 0.60D, 0.0D, 1.0D);
+        WILD_OMNIVORE_HUNT_THRESHOLD = builder.defineInRange("omnivoreHuntThreshold", 0.30D, 0.0D, 1.0D);
+        WILD_DESTROY_PLANTS = builder.define("destroyPlants", false);
+        WILD_DIET_PROFILE_OVERRIDES = builder.defineListAllowEmpty("profileOverrides", List.of(), o -> o instanceof String);
+        WILD_INEDIBLE_ENTITIES = builder.defineListAllowEmpty("inedibleEntities", List.of(), o -> o instanceof String);
+        WILD_CARCASS_MIN_NUTRITION = builder.defineInRange("carcassMinimumNutrition", 2.0D, 0.0D, 1_000_000.0D);
+        WILD_CARCASS_MAX_NUTRITION = builder.defineInRange("carcassMaximumNutrition", 200.0D, 0.0D, 1_000_000.0D);
+        WILD_CARCASS_HEALTH_WEIGHT = builder.defineInRange("carcassHealthWeight", 0.25D, 0.0D, 1000.0D);
+        WILD_CARCASS_VOLUME_WEIGHT = builder.defineInRange("carcassVolumeWeight", 4.0D, 0.0D, 1000.0D);
+        WILD_ENVIRONMENT_NUTRITION_PERCENT = builder.defineInRange("environmentNutritionPercent", 0.10D, 0.0D, 1.0D);
+        WILD_TAGGED_FOOD_FALLBACK_PERCENT = builder.defineInRange("taggedFoodFallbackPercent", 0.05D, 0.0D, 1.0D);
+        WILD_CARNIVORE_NUTRITION_MULTIPLIER = builder.defineInRange("carnivoreNutritionMultiplier", 1.0D, 0.0D, 100.0D);
+        WILD_HERBIVORE_NUTRITION_MULTIPLIER = builder.defineInRange("herbivoreNutritionMultiplier", 1.0D, 0.0D, 100.0D);
+        WILD_SCAVENGER_NUTRITION_MULTIPLIER = builder.defineInRange("scavengerNutritionMultiplier", 0.90D, 0.0D, 100.0D);
+        WILD_OMNIVORE_NUTRITION_MULTIPLIER = builder.defineInRange("omnivoreNutritionMultiplier", 0.75D, 0.0D, 100.0D);
+        builder.pop();
+
+        builder.push("survivalDamage");
+        STARVATION_DAMAGE_MAX_HEALTH_PERCENT_PER_SECOND = builder.defineInRange("starvationMaxHealthPercentPerSecond", 0.001D, 0.0D, 1.0D);
+        DEHYDRATION_DAMAGE_MAX_HEALTH_PERCENT_PER_SECOND = builder.defineInRange("dehydrationMaxHealthPercentPerSecond", 0.001D, 0.0D, 1.0D);
+        builder.pop();
+
         builder.push("stamina");
         STAMINA_STILL_REGEN_PERCENT = builder.defineInRange("stillRegenPercentPerSecond", 0.05D, 0.0D, 1.0D);
         STAMINA_MOVING_REGEN_PERCENT = builder.defineInRange("movingRegenPercentPerSecond", 0.01D, 0.0D, 1.0D);
@@ -224,7 +289,7 @@ public final class SurvivalConfig {
         WARMING_PER_BLOCK_BELOW_SEA_LEVEL = builder.defineInRange("warmingPerBlockBelowSeaLevel", 0.02D, 0.0D, 10.0D);
         RAIN_TEMPERATURE_MODIFIER = builder.defineInRange("rainTemperatureModifier", -3.0D, -100.0D, 100.0D);
         THUNDER_TEMPERATURE_MODIFIER = builder.defineInRange("thunderTemperatureModifier", -5.0D, -100.0D, 100.0D);
-        TDMC_RESISTANCE_PER_POINT = builder.defineInRange("tdmcResistancePerPoint", 2.0D, 0.0D, 1000.0D);
+        TDMC_RESISTANCE_PER_POINT = builder.defineInRange("tdmcResistancePerPoint", 1.0D, 0.0D, 1000.0D);
         TEMPERATURE_WARNING_RESOURCE_DRAIN_MULTIPLIER = builder.defineInRange("warningResourceDrainMultiplier", 1.20D, 1.0D, 100.0D);
         TEMPERATURE_SEVERE_THRESHOLD_PERCENT = builder.defineInRange("severeThresholdPercent", 0.20D, 0.0D, 10.0D);
         TEMPERATURE_CRITICAL_THRESHOLD_PERCENT = builder.defineInRange("criticalThresholdPercent", 0.50D, 0.0D, 10.0D);

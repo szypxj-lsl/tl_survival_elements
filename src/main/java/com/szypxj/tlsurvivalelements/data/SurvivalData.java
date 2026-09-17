@@ -20,6 +20,10 @@ public final class SurvivalData {
     private static final String FOOD_DRAIN_BUFFER = "FoodDrainBuffer";
     private static final String HEALTH_BASE_INITIALIZED = "HealthBase100Initialized";
     private static final String LAST_COMBAT_GAME_TIME = "LastCombatGameTime";
+    private static final String FOOD_RESERVE = "FoodReserve";
+    private static final String NEXT_FORAGE_GAME_TIME = "NextForageGameTime";
+    private static final String NEXT_GROUND_FOOD_GAME_TIME = "NextGroundFoodGameTime";
+    private static final String NEXT_HUNT_GAME_TIME = "NextHuntGameTime";
 
     private final LivingEntity entity;
     private final CompoundTag tag;
@@ -46,6 +50,10 @@ public final class SurvivalData {
         boolean missingLastMaxWater = !tag.contains(LAST_MAX_WATER);
         boolean missingLastMaxStamina = !tag.contains(LAST_MAX_STAMINA);
         boolean missingLastAction = !tag.contains(LAST_ACTION);
+        boolean missingFoodReserve = !tag.contains(FOOD_RESERVE);
+        boolean missingNextForageGameTime = !tag.contains(NEXT_FORAGE_GAME_TIME);
+        boolean missingNextGroundFoodGameTime = !tag.contains(NEXT_GROUND_FOOD_GAME_TIME);
+        boolean missingNextHuntGameTime = !tag.contains(NEXT_HUNT_GAME_TIME);
 
         if (!firstInitialization
                 && !missingFood
@@ -54,7 +62,11 @@ public final class SurvivalData {
                 && !missingLastMaxFood
                 && !missingLastMaxWater
                 && !missingLastMaxStamina
-                && !missingLastAction) {
+                && !missingLastAction
+                && !missingFoodReserve
+                && !missingNextForageGameTime
+                && !missingNextGroundFoodGameTime
+                && !missingNextHuntGameTime) {
             return;
         }
 
@@ -92,6 +104,20 @@ public final class SurvivalData {
         }
         if (missingLastAction) {
             tag.putLong(LAST_ACTION, entity.level().getGameTime());
+        }
+        if (missingFoodReserve) {
+            tag.putDouble(FOOD_RESERVE, 0.0D);
+        }
+        long now = entity.level().getGameTime();
+        long jitter = Math.floorMod(entity.getUUID().getLeastSignificantBits(), 200L);
+        if (missingNextForageGameTime) {
+            tag.putLong(NEXT_FORAGE_GAME_TIME, now + 20L + jitter);
+        }
+        if (missingNextGroundFoodGameTime) {
+            tag.putLong(NEXT_GROUND_FOOD_GAME_TIME, now + 20L + jitter);
+        }
+        if (missingNextHuntGameTime) {
+            tag.putLong(NEXT_HUNT_GAME_TIME, now + 20L + jitter);
         }
     }
 
@@ -205,6 +231,39 @@ public final class SurvivalData {
             stamina(newStaminaMax * ratio);
         }
         tag.putDouble(LAST_MAX_STAMINA, newStaminaMax);
+    }
+
+
+    public double foodReserve() {
+        return Math.max(0.0D, tag.getDouble(FOOD_RESERVE));
+    }
+
+    public void foodReserve(double value) {
+        tag.putDouble(FOOD_RESERVE, Double.isFinite(value) ? Math.max(0.0D, value) : 0.0D);
+    }
+
+    public long nextForageGameTime() {
+        return Math.max(0L, tag.getLong(NEXT_FORAGE_GAME_TIME));
+    }
+
+    public void nextForageGameTime(long value) {
+        tag.putLong(NEXT_FORAGE_GAME_TIME, Math.max(0L, value));
+    }
+
+    public long nextGroundFoodGameTime() {
+        return Math.max(0L, tag.getLong(NEXT_GROUND_FOOD_GAME_TIME));
+    }
+
+    public void nextGroundFoodGameTime(long value) {
+        tag.putLong(NEXT_GROUND_FOOD_GAME_TIME, Math.max(0L, value));
+    }
+
+    public long nextHuntGameTime() {
+        return Math.max(0L, tag.getLong(NEXT_HUNT_GAME_TIME));
+    }
+
+    public void nextHuntGameTime(long value) {
+        tag.putLong(NEXT_HUNT_GAME_TIME, Math.max(0L, value));
     }
 
     public long lastCombatGameTime() {

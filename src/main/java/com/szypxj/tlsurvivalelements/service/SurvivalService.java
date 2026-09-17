@@ -499,6 +499,30 @@ public final class SurvivalService {
         data.water(data.water() - data.maxWater() * SurvivalConfig.WATER_DRAIN_PER_MINUTE.get() * SurvivalConfig.PLAYER_WATER_DRAIN_MULTIPLIER.get() * activeMultiplier * temperatureMultiplier / 60.0D);
     }
 
+    public static void tickStarvationDamage(LivingEntity entity) {
+        if (entity == null || entity.level().isClientSide || !entity.isAlive()) return;
+        if (entity instanceof Player player && (player.isCreative() || player.isSpectator())) return;
+        if (!(entity instanceof Player) && usesNativeCreatureFood(entity)) return;
+        SurvivalData data = SurvivalData.of(entity);
+        if (data.food() > 0.0D) return;
+        double percent = Math.max(0.0D, SurvivalConfig.STARVATION_DAMAGE_MAX_HEALTH_PERCENT_PER_SECOND.get());
+        double amount = entity.getMaxHealth() * percent;
+        if (amount > 0.0D && Double.isFinite(amount)) {
+            entity.hurt(entity.damageSources().starve(), (float) amount);
+        }
+    }
+
+    public static void tickDehydrationDamage(Player player) {
+        if (player == null || player.level().isClientSide || !player.isAlive() || player.isCreative() || player.isSpectator()) return;
+        SurvivalData data = SurvivalData.of(player);
+        if (data.water() > 0.0D) return;
+        double percent = Math.max(0.0D, SurvivalConfig.DEHYDRATION_DAMAGE_MAX_HEALTH_PERCENT_PER_SECOND.get());
+        double amount = player.getMaxHealth() * percent;
+        if (amount > 0.0D && Double.isFinite(amount)) {
+            player.hurt(player.damageSources().dryOut(), (float) amount);
+        }
+    }
+
     private static double temperatureRecoveryMultiplier(Player player) {
         if (player instanceof ServerPlayer serverPlayer
                 && !serverPlayer.isCreative()

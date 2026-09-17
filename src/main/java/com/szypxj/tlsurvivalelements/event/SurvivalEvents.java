@@ -7,6 +7,9 @@ import com.szypxj.tlsurvivalelements.compat.TdmcCompat;
 import com.szypxj.tlsurvivalelements.compat.TdmcTamingRules;
 import com.szypxj.tlsurvivalelements.config.SurvivalConfig;
 import com.szypxj.tlsurvivalelements.data.SurvivalData;
+import com.szypxj.tlsurvivalelements.diet.FoodReserveService;
+import com.szypxj.tlsurvivalelements.diet.WildForagingService;
+import com.szypxj.tlsurvivalelements.diet.WildPredationService;
 import com.szypxj.tlsurvivalelements.network.SurvivalNetwork;
 import com.szypxj.tlsurvivalelements.service.CtrlBoostService;
 import com.szypxj.tlsurvivalelements.service.SurvivalService;
@@ -20,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -107,6 +111,10 @@ public final class SurvivalEvents {
             SurvivalService.tickPlayerFastHealing(serverPlayer);
             SurvivalService.drainNaturalFood(player, SurvivalService.hasConfiguredAnesthesia(player));
             SurvivalService.drainNaturalWater(player, sprinting || ctrlBoosting);
+            SurvivalService.tickStarvationDamage(player);
+        }
+        if (player.tickCount % 20 == 10) {
+            SurvivalService.tickDehydrationDamage(player);
         }
 
         if (player.tickCount % 10 == 0) SurvivalNetwork.sendState(serverPlayer);
@@ -120,7 +128,7 @@ public final class SurvivalEvents {
         boolean tracked = entity.getPersistentData().contains("tl_survival_elements");
         if (!tracked) {
             if (entity.tickCount % 200 != 0) return;
-            if (!TdmcTamingRules.hasRule(entity) && !TdmcCompat.isManagedPet(entity)) return;
+            if (!TdmcTamingRules.hasRule(entity) && !TdmcCompat.isManagedPet(entity) && !WildForagingService.shouldTrack(entity)) return;
             SurvivalData.of(entity);
         }
 
@@ -135,11 +143,20 @@ public final class SurvivalEvents {
         }
         boolean ctrlBoosting = CtrlBoostService.isActivelyBoosting(entity);
         SurvivalService.tickStaminaRegeneration(entity, moving, ctrlBoosting || riddenFlying);
+        WildForagingService.tick(entity);
+        WildPredationService.tick(entity);
         if (entity.tickCount % 20 == 0) {
             SurvivalService.drainNaturalFood(entity, SurvivalService.hasConfiguredAnesthesia(entity));
+            FoodReserveService.tickTransfer(entity);
             SurvivalService.tickPetBackpackAutoFeed(entity);
+            SurvivalService.tickStarvationDamage(entity);
         }
         data.clamp();
+    }
+
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event) {
+        WildPredationService.onLivingDeath(event);
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
